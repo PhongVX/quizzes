@@ -1,0 +1,9 @@
+@mixin theme-colors($primary, $secondary, $background, $background-secondary, $text,  $text-secondary, $text-grey) {
+    --primary-color: #{$primary};
+    --secondary-color: #{$secondary};
+    --background-color: #{$background};
+    --background-secondary: #{$background-secondary};
+    --text-color: #{$text};
+    --text-secondary: #{$text-secondary};
+    --text-grey: #{$text-grey};
+}

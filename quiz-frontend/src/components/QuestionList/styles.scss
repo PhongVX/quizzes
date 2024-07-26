@@ -1,0 +1,17 @@
+.question-list-wrapper {
+    width: 100%;
+    position: relative;
+    h1 {
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+    #submit-quiz-button {
+        position: absolute;
+        right: 0;
+    }
+    .question-list-footer {
+        margin-top: 16px;
+        display: flex;
+        justify-content: right;
+    }
+}

@@ -1,0 +1,13 @@
+@import '../base/variables';
+@import '../base/mixins';
+
+
+@include theme-colors(
+    $primary-color, 
+    $secondary-color, 
+    $background-color, 
+    $background-secondary, 
+    $text-color, 
+    $text-secondary,
+    $text-grey
+);
