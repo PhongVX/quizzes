@@ -10,21 +10,24 @@ import {
 
 import './styles.scss';
 
-import { Path } from '../../const';
+import { Path, SocketEvents } from '../../const';
 import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
+import { useSocket } from '../../context/socket/hooks';
 
 type FieldType = {
-    userId?: string;
+    username?: string;
     quizId?: string;
 };
 
 export const Main = () => {
     const navigate = useNavigate();
     const { buildQueryParams } = useUrlSearchParams();
+    const { socket } = useSocket();
 
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
         const query = buildQueryParams(values);
         navigate(`${Path.Quiz}?${query}`);
+        socket?.emit(SocketEvents.StartQuiz, values);
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
@@ -40,10 +43,10 @@ export const Main = () => {
                     onFinishFailed={onFinishFailed}
                 >
                     <Form.Item<FieldType>
-                        name='userId'
-                        rules={[{ required: true, message: 'Please input userId!' }]}
+                        name='username'
+                        rules={[{ required: true, message: 'Please input username!' }]}
                     >
-                        <Input placeholder='User ID' />
+                        <Input placeholder='User Name' />
                     </Form.Item>
                     <Form.Item<FieldType>
                         name='quizId'

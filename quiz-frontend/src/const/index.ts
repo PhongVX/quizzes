@@ -6,3 +6,8 @@ export enum Path {
 export enum LocalStorageKey {
     UserAnswer = 'userAnswers'
 }
+
+export enum SocketEvents {
+    StartQuiz = 'start-quiz',
+    SubmitQuiz = 'submit-quiz'
+}
