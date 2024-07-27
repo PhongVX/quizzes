@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis/redis-stack-server
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping", "||", "exit", "1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    labels:
+      - autoheal=true
+  autoheal:
+    image: willfarrell/autoheal:1.2.0
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
