@@ -1,11 +1,15 @@
 .quiz-page {
-     display: flex;
      height: 100vh;
-     justify-content: center;
-     align-items: center;
+    margin: 80px;
     .quiz-container {
-        width: 500px;
-    }   
+        width: 100%;
+    }  
+    .sumary-result-container {
+        width: 100%;
+        .sumary-chart {
+            text-align: center;
+        }
+    } 
     .leaderboard-container {
         width: 200px;
         background-color: red;;

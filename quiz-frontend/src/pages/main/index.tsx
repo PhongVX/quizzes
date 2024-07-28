@@ -10,7 +10,7 @@ import {
 
 import './styles.scss';
 
-import { Path, SocketEvents } from '../../const';
+import { LocalStorageKey, Path, SocketEvents } from '../../const';
 import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
 import { useSocket } from '../../context/socket/hooks';
 
@@ -25,9 +25,13 @@ export const Main = () => {
     const { socket } = useSocket();
 
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
-        const query = buildQueryParams(values);
-        navigate(`${Path.Quiz}?${query}`);
         socket?.emit(SocketEvents.StartQuiz, values);
+        socket?.on(SocketEvents.StartQuizConfirmed, (msg) => {
+            const query = buildQueryParams({quizId: msg.quizId, username: msg.username});
+            localStorage.setItem(`${LocalStorageKey.ListQuestion}_${msg.username}_${msg.quizId}`, JSON.stringify(msg.listQuestion));    
+            navigate(`${Path.Quiz}?${query}`, { state: { listQuestion: msg.listQuestion}});
+            
+        });
     };
 
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {

@@ -4,10 +4,15 @@ export enum Path {
 }
 
 export enum LocalStorageKey {
-    UserAnswer = 'userAnswers'
+    UserAnswer = 'userAnswers',
+    ListQuestion = 'listQuestion'
 }
 
 export enum SocketEvents {
     StartQuiz = 'start-quiz',
-    SubmitQuiz = 'submit-quiz'
+    StartQuizConfirmed = 'start-quiz-confirmed',
+    ContinueQuiz = 'continue-quiz',
+    ContinueQuizConfirmed = 'continue-quiz-confirmed',
+    SubmitQuiz = 'submit-quiz',
+    SubmitQuizConfirmed = 'submit-quiz-confirmed'
 }

@@ -6,8 +6,9 @@ import { Question } from '../Question'
 
 import './styles.scss';
 import { useDataFromBrowserStorage } from '../../hooks/useDataFromBrowserStorage';
-import { LocalStorageKey } from '../../const';
+import { LocalStorageKey, SocketEvents } from '../../const';
 import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
+import { useSocket } from '../../context/socket/hooks';
 
 type QuestionListProps = {
   listQuestion: any[]
@@ -19,6 +20,7 @@ export const QuestionList = ({ listQuestion }: QuestionListProps) => {
   const canBackToPrevious = currentQuestion > 0;
   const { getDataFromQueryString } = useUrlSearchParams();
   const { getDataFromStorage } = useDataFromBrowserStorage();
+  const { socket } = useSocket();
 
   const goNextQuestion = () => {
     if (currentQuestion < listQuestion.length - 1) {
@@ -34,12 +36,13 @@ export const QuestionList = ({ listQuestion }: QuestionListProps) => {
 
   const handleSubmitQuiz = () => {
     let userAnswer = getDataFromStorage(LocalStorageKey.UserAnswer);
-    //alert(JSON.stringify(userAnswer));
-    const userId = getDataFromQueryString('userId');
+    const username = getDataFromQueryString('username');
     const quizId = getDataFromQueryString('quizId');
-
-    console.log('userId', userId, 'quizId', quizId);
-    console.log('userAnswer', userAnswer)
+    socket?.emit(SocketEvents.SubmitQuiz, {
+      username,
+      quizId,
+      listAnswer: userAnswer
+    });
   }
 
   return (
@@ -48,7 +51,10 @@ export const QuestionList = ({ listQuestion }: QuestionListProps) => {
         <br/>
         <h1>Simple quiz</h1>
         <hr />
-        <Question position={currentQuestion + 1} questionData={listQuestion[currentQuestion]} />
+        <div className='question-container'>
+          <Question position={currentQuestion + 1} questionData={listQuestion[currentQuestion]} />
+        </div>
+        
         <br />
         <div className='question-list-footer'>
             <Button disabled={!canBackToPrevious} onClick={backToPreviousQuestion} icon={<LeftOutlined />}/>
