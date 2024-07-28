@@ -1,5 +1,5 @@
 import RabbitMQ from 'amqplib';
-import { IQuizQueueHandler, StartQuizMessage } from "./types";
+import { IQuizQueueHandler, StartQuizParams, SubmitQuizParams } from "./types";
 import { QueueEvents } from '../common/types';
 import { IWebSocket } from '../core/socket/types';
 import { IQuizService } from './service';
@@ -32,35 +32,40 @@ export class QuizQueueHandler implements IQuizQueueHandler{
                 if (msg !== null) {
                     const message = msg.content.toString();
                     console.log(`Received: ${message}`);
-                    const startQuizMessage = JSON.parse(message) as StartQuizMessage;
-                    console.log('startQuizMessage', startQuizMessage);
-
-                    let startQuizResult = await this.quizService.startQuiz(startQuizMessage);
+                    const startQuizMessage = JSON.parse(message) as StartQuizParams;
+                    const startQuizResult = await this.quizService.startQuiz(startQuizMessage);
                     if (startQuizResult) {
+                        this.quizService.startQuizConfirmed(this.socket, startQuizMessage);
                         this.channel?.ack(msg);
                     }
                 }
             });
         } catch (err) {
-            throw err;
+            console.log(err);
         }
     }
 
+    
     consumeSubmitQuiz = () => {
         try {
             if (!this.channel) {
               throw new Error('Channel is not initialized');
             }
             this.channel.assertQueue(QueueEvents.SubmitQuiz, { durable: true });
-            this.channel?.consume(QueueEvents.SubmitQuiz, (msg) => {
+            this.channel?.consume(QueueEvents.SubmitQuiz, async(msg) => {
                 if (msg !== null) {
                     const message = msg.content.toString();
                     console.log(`Received: ${message}`);
-                    this.channel?.ack(msg);
+                    const submitQuizParams = JSON.parse(message) as SubmitQuizParams;
+                    const submitQuizResult = await this.quizService.submitQuiz(submitQuizParams);
+                    if (submitQuizResult) {
+                        this.quizService.submitQuizConfirmed(this.socket, submitQuizParams);
+                        this.channel?.ack(msg);
+                    }
                 }
             });  
         } catch (err) {
-            throw err;
+            console.log(err);
         }
     }
 }

@@ -1,8 +1,8 @@
 
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import { QuizSocketHandler } from '../../quiz/socket-handler';
-import { IQuizSocketHandler } from '../../quiz/types';
+import { QuizSocketHanlder } from '../../quiz/socket-handler';
+import { IQuizSocketHanlder } from '../../quiz/types';
 import { IMessageQueue } from '../queue/types';
 import { IWebSocket } from './types';
 
@@ -13,7 +13,7 @@ type InitSocketObject = {
 
 export class SocketIOImpl implements IWebSocket {
     private io: SocketIOServer;
-    private quizSocketHandler: IQuizSocketHandler;
+    private quizSocketHandler: IQuizSocketHanlder;
 
     constructor({ server }: InitSocketObject) {
         this.io = new SocketIOServer(server, {
@@ -21,7 +21,11 @@ export class SocketIOImpl implements IWebSocket {
               origin: '*',
             },
         });
-        this.quizSocketHandler = new QuizSocketHandler();
+        this.quizSocketHandler = new QuizSocketHanlder();
+    }
+
+    getIO = ():SocketIOServer => {
+        return this.io;
     }
 
     setQueue = (queue: IMessageQueue) => {
@@ -30,11 +34,16 @@ export class SocketIOImpl implements IWebSocket {
 
     onConnection = () => {
         this.io.on('connection', (socket) => {
-            this.quizSocketHandler.startQuiz(socket);
-            // this.quizSocketHandler.submitQuiz(socket);
             socket.on('disconnect', () => {
                 console.log('User disconnected');
             });
+            this.quizSocketHandler.startQuiz(socket);
+            this.quizSocketHandler.submitQuiz(socket);
+            this.quizSocketHandler.continueQuiz(socket);
         });
+    }
+
+    emitMessageToRoom = (roomId: string, event: string, data: any) => {
+        this.io.to(roomId).emit(event, data);
     }
 }

@@ -42,6 +42,7 @@ export class App {
 
     private patchingInitilize = () => {
         this.webSocket.setQueue?.(this.queue); 
+        this.queue.setSocket?.(this.webSocket); 
     }
 
     private initializeApi = () => {

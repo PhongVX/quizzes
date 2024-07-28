@@ -8,7 +8,11 @@ export enum HttpMethod {
 
 export enum SocketEvents {
     StartQuiz = 'start-quiz',
-    SubmitQuiz = 'submit-quiz'
+    StartQuizConfirmed = 'start-quiz-confirmed',
+    ContinueQuiz = 'continue-quiz',
+    SubmitQuiz = 'submit-quiz',
+    SubmitQuizConfirmed = 'submit-quiz-confirmed',
+    DisConnect = 'disconnect'
 }
 
 export enum QueueEvents {

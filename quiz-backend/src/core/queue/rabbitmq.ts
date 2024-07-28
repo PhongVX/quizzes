@@ -5,6 +5,7 @@ import { QuizQueueHandler } from '../../quiz/queue-handler';
 import { QuizService } from '../../quiz/service';
 import { QuizRepository } from '../../quiz/repository';
 import { IDatabase } from '../../common/database/types';
+import { IWebSocket } from '../socket/types';
 
 export class RabbitMQImpl implements IMessageQueue {
     private connection: RabbitMQ.Connection | undefined;
@@ -14,15 +15,15 @@ export class RabbitMQImpl implements IMessageQueue {
     constructor(db: IDatabase) {
         const quizRepos = new QuizRepository(db);
         const quizService = new QuizService(quizRepos);
-        this.quizQueueHandler = new QuizQueueHandler(quizService)
+        this.quizQueueHandler = new QuizQueueHandler(quizService);
     }
 
     getChannel = (): RabbitMQ.Channel | undefined => {
         return this.channel;
     }
 
-    setWebSocket = () => {
-
+    setSocket = (webSocket: IWebSocket) => {
+        this.quizQueueHandler.setSocket(webSocket);
     }
 
     connect = async () => {
@@ -53,5 +54,6 @@ export class RabbitMQImpl implements IMessageQueue {
 
     consumeMessage = () => {
         this.quizQueueHandler.consumeStartQuiz();
+        this.quizQueueHandler.consumeSubmitQuiz();
     }
 }
