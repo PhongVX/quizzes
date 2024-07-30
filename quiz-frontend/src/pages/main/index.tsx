@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import {
     FormProps,
@@ -8,11 +8,12 @@ import {
     Alert
 } from 'antd';
 
-import './styles.scss';
-
 import { LocalStorageKey, Path, SocketEvents } from '../../const';
 import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
 import { useSocket } from '../../context/socket/hooks';
+
+import './styles.scss';
+
 
 type FieldType = {
     username?: string;
@@ -20,6 +21,7 @@ type FieldType = {
 };
 
 export const Main = () => {
+    const [ errorMessage, setErrorMessage ] = useState('');
     const navigate = useNavigate();
     const { buildQueryParams } = useUrlSearchParams();
     const { socket } = useSocket();
@@ -27,9 +29,13 @@ export const Main = () => {
     const onFinish: FormProps<FieldType>['onFinish'] = (values) => {
         socket?.emit(SocketEvents.StartQuiz, values);
         socket?.on(SocketEvents.StartQuizConfirmed, (msg) => {
+            if (msg.error) {
+                setErrorMessage('Something went wrong, Please try again.');
+                return
+            }
             const query = buildQueryParams({quizId: msg.quizId, username: msg.username});
             localStorage.setItem(`${LocalStorageKey.ListQuestion}_${msg.username}_${msg.quizId}`, JSON.stringify(msg.listQuestion));    
-            navigate(`${Path.Quiz}?${query}`, { state: { listQuestion: msg.listQuestion}});
+            navigate(`${Path.Quiz}?${query}`, { state: { ...msg }});
             
         });
     };
@@ -37,10 +43,11 @@ export const Main = () => {
     const onFinishFailed: FormProps<FieldType>['onFinishFailed'] = (errorInfo) => {
         console.log('Failed:', errorInfo);
     };
+
     return (
         <div className='main-page'>
             <div className='start-quiz-form'>
-                <Alert id='notification' message='Success Text' type='success' />
+                { errorMessage && <Alert onClose={() => { setErrorMessage('')}} id='notification' closeIcon={true} message={errorMessage} type='error' /> }
                 <h1>Your Quiz</h1>
                 <Form
                     onFinish={onFinish}
@@ -59,7 +66,7 @@ export const Main = () => {
                         <Input placeholder='Quiz ID' />
                     </Form.Item>
                     <Form.Item>
-                        <Button id='submit-button' type='primary' htmlType='submit'>Start Quiz</Button>
+                        <Button id='submit-button' type='primary' htmlType='submit'>Join</Button>
                     </Form.Item>
                 </Form>
             </div>

@@ -1,71 +1,74 @@
-import React, { useState } from 'react';
-import { Flex, Progress, Col, Row  } from 'antd';
-import { useLocation } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { QuestionList } from '../../components/QuestionList';
+import { useSocket } from '../../context/socket/hooks';
+import { SocketEvents, Path } from '../../const';
+import { useQuiz } from './hooks';
+import { useDataFromBrowserStorage } from '../../hooks/useDataFromBrowserStorage';
+import { ResultSumary } from '../../components/ResultSumary';
+import { LeaderBoard } from '../../components/LeaderBoard';
 
 import './styles.scss';
-import { useSocket } from '../../context/socket/hooks';
-import { LocalStorageKey, SocketEvents } from '../../const';
-import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
-  
+
 export const Quiz = () => {
-    const [ submissionData, setSubmissionData ] = useState<any>();
-    const [ isFinish, setIsFinish ] = useState(false);
+    const { 
+        submissionData, 
+        setSubmissionData
+    } = useQuiz();
+
     const { socket } = useSocket();
     const location = useLocation();
-    const { getDataFromQueryString } = useUrlSearchParams();
-    const username = getDataFromQueryString('username');
-    const quizId = getDataFromQueryString('quizId');
-    
+    const navigate = useNavigate();
+    const { clearStorage  } = useDataFromBrowserStorage();
+
+    React.useEffect(() => {
+        if (!location.state) {
+            navigate(`${Path.Main}`);
+        }
+        setSubmissionData(location.state)
+    }, [location.state]);
+
     React.useEffect(() => {
         socket?.on(SocketEvents.SubmitQuizConfirmed, (msg) => {
-            setIsFinish(true);
             setSubmissionData(msg);
+            clearStorage();
         });
     }, [socket]);
 
-    React.useEffect(() => {
-        if (!location.state?.listQuestion) {
-            socket?.emit(SocketEvents.ContinueQuiz, { username, quizId });
-        }
-    }, [location.state, socket]);
-
     const renderQuestionList = () => {
-        const listQuestionFromStorage = JSON.parse(localStorage.getItem(`${LocalStorageKey.ListQuestion}_${username}_${quizId}`) || '[]');
-        const listQuestion = location.state?.listQuestion || listQuestionFromStorage;
-        return (
-            <div className='quiz-container'>
-                <QuestionList listQuestion={listQuestion} />
-            </div>
-        )
+        if (submissionData?.listQuestion.length > 0) {
+            return (
+                <div className='quiz-container'>
+                    <QuestionList 
+                        startTime={submissionData?.startTime} 
+                        dueDate={submissionData?.dueDate} 
+                        listQuestion={submissionData?.listQuestion} 
+                    />
+                </div>
+            )
+        }
+        return null;
     }
 
-    const renderResultSumary= () => {
-        return (
-            <div className='sumary-result-container'>
-                <br/>
-                <h1>Total score</h1>
-                <hr />
-                <br/>
-                <div className='sumary-chart'>
-                    <Progress type="circle" percent={submissionData?.score} />
-                    <br />
-                    Number of correct answers: {submissionData.numberOfCorrectAnswers} <br />
-                    Number of questions: {submissionData.numberOfQuestions} <br />
-                </div>
-            </div>
-        )
-    }
+    const QuizContainer = useMemo(() => {
+        if (submissionData?.submissionTime) {
+            return (
+                <ResultSumary 
+                    score={submissionData?.score}
+                    numberOfCorrectAnswers={submissionData?.numberOfCorrectAnswers}
+                    numberOfQuestions={submissionData?.numberOfQuestions}
+                />
+            )
+        }
+        return renderQuestionList();
+    }, [submissionData]); 
+
     return (
         <div className='quiz-page'>
+            <LeaderBoard />
             {
-                <>
-                    Leader board <br/>
-                </>
-            }
-            {
-                isFinish ? renderResultSumary() : renderQuestionList()
+                QuizContainer
             }
         </div>
     )

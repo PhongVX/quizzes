@@ -9,6 +9,7 @@ export enum LocalStorageKey {
 }
 
 export enum SocketEvents {
+    LeaderBoardUpdated = 'leader-board-updated',
     StartQuiz = 'start-quiz',
     StartQuizConfirmed = 'start-quiz-confirmed',
     ContinueQuiz = 'continue-quiz',

@@ -1,0 +1,10 @@
+.leader-board-list {
+    display: flex;
+    ul {
+        list-style-type: none; 
+        display: flex;
+        li {
+            margin-right: 10px;
+        }
+    }
+}
