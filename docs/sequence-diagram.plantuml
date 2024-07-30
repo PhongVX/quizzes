@@ -9,19 +9,17 @@ end box
 database    RedisCache as Redis
 database    Database   as DB
 
-|||
-== <font color=red><size:18>First time join quiz</size></font> ==
-|||
-User -> QFE : Access Quiz by entering userId and quizId
-QFE  -> QSV : Emit a websocket event "join-quiz" with userId and quizId
-QFE  -> QFE : Navigate user to the quiz and show loading spinner
-QSV --> RBMQ: sendToQueue join-quiz with userId and quizId
-RBMQ  -> DB: Insert userId and quizId into the QuizAttempt
-DB  --> QSV: Insert successful
+
+User -> QFE : Access Quiz by entering username and quizId
+User -> QFE: Click "Join"
+QFE  -> QSV : Emit a websocket event "start-quiz" with username and quizId
+QSV --> RBMQ: sendToQueue start-quiz with username, quizId
+RBMQ  -> DB: Insert username, quizId, startTime, dueDate into the quiz_submissions table
 alt Insert fails
-    QSV --> QFE: Emit error event "join-quiz-failed"
+    QSV --> QFE: Emit error event "start-quiz-confirmed" with error
     QFE -> User: Show error message
 else
+    DB  --> QSV: Insert successful
     QSV  --> Redis: Cache user info in Redis if it does not exist
     alt Check QuestionList by quizId
         QSV -> Redis: get questionList by quizId
@@ -29,18 +27,21 @@ else
         QSV -> DB: Query questionList by quizId in DB
         QSV -> Redis: Cache questionList by quizId into Redis
     end
-    QFE -> User: Start the quiz
-    User -> QFE: Click "Start Quiz"
-    QFE -> QSV: Emit a websocket event "start-quiz" with userId and quizId
-    QSV -> RBMQ: sendToQueue "start-quiz" with userId and quizId
-    RBMQ -> DB: Update startTime in QuizAttempt table
-    DB --> QSV: Update startTime successful
-    RBMQ -> Redis: Cache startTime of the user
+    RBMQ -> Redis: Cache startTime, dueDate of the user
     QSV -> Redis: Get questionList from cache
     Redis --> QSV: questionList
     QSV --> QFE: Emit a websocket event "start-quiz-confirmed" with questionList
+    alt Find leaderboard by quizId
+        QSV -> Redis: get leaderboard by quizId
+    else not exist
+        QSV -> DB: Query leaderboard by quizId in DB
+        QSV -> Redis: Cache leaderboard by quizId into Redis
+    end
+    QSV --> QFE: Emit a websocket event "leader-board-updated" with leaderboard data
+    QFE  -> QFE : Navigate user to the quiz 
+    QFE --> QFE: Display the leaderboard on UI
     QFE --> QFE: Display the questionList on UI
-    QFE -> User: Please take your time and do the quiz
+    QFE --> User: Please take your time and do the quiz
     User -> QFE: Select options and click "Next question"
     QFE -> QFE: Save answered question in localStorage
     User -> QFE: Done with the quiz and click "submit" button
@@ -49,33 +50,11 @@ else
     QSV -> RBMQ: sendToQueue "submit-quiz"
     RBMQ --> QSV: Calculate the result of the Quiz by userId and quizId
     QSV -> Redis: Update the score in the leaderboard
-    QSV -> RBMQ: sendToQueue "submit-quiz-db" to update the result into the DB
-    RBMQ -> DB: Update the Quiz result into the DB
-    RBMQ --> QSV: Emit a websocket event "submit-quiz-confirmed" with final score
-    QSV --> Redis: Get the latest leaderboard
-    Redis --> QSV: Latest leaderboard
-    QSV --> QFE: Emit "submit-quiz-confirmed" with score and leaderboard
-    QFE --> User: Show the final score and leaderboard
-end
-
-|||
-== <font color=red><size:18>Re-join quiz</size></font> ==
-|||
-User -> QFE : Access Quiz by entering userId and quizId
-QFE  -> QSV : Emit a websocket event "join-quiz" with userId and quizId
-QFE  -> QFE : Navigate user to the quiz and show loading spinner
-QSV --> RBMQ: sendToQueue join-quiz with userId and quizId
-RBMQ  -> DB: Check existing QuizAttempt
-alt QuizAttempt exists
-    DB --> QSV: QuizAttempt found
-    QSV -> Redis: Get cached user info and questionList
-    Redis --> QSV: User info and questionList
-    QSV --> QFE: Emit "re-join-quiz" with current state
-    QFE --> QFE: Display the current quiz state
-    QFE -> User: Resume your quiz
-else
-    DB --> QSV: No existing QuizAttempt
-    QSV --> QFE: Emit error event "join-quiz-failed"
-    QFE -> User: Show error message
+    QSV -> DB: Update the Quiz result into the DB
+    QSV --> Redis: Get the latest leaderboard and score
+    Redis --> QSV: Latest leaderboard and score
+    QSV --> QFE: Emit a websocket event "submit-quiz-confirmed" with score
+    QSV --> QFE: Emit a websocket event "leader-board-updated" with leaderboard data
+    QFE --> User: Show the final score and the latest leaderboard
 end
 @enduml
