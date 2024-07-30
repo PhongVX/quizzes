@@ -18,10 +18,11 @@ export interface IQuizQueueHandler {
 }
 
 export interface IQuizRepository {
-    startQuiz: (data: StartQuizParams) => Promise<boolean>
-    submitQuiz: (data: SubmitQuizParams) => Promise<boolean>
+    startQuiz: (data: StartQuizParams) => Promise<any>
+    submitQuiz: (data: QuizParams) => Promise<boolean>
     findListQuestionByQuizId: (quizId: string) => Promise<any>
-    findQuizSubmissionByUsernameAndQuizId: (data: SubmitQuizParams) => Promise<any>
+    findQuizSubmissionByUsernameAndQuizId: (data: StartQuizParams) => Promise<any>
+    findQuizSubmissionOrderByScore: (data: QuizParams) => Promise<any>
 }
 
 
@@ -30,18 +31,26 @@ export type StartQuizParams = {
     username: string
 }
 
-export type SubmitQuizParams = {
+export type QuizParams = {
     username: string,
     quizId: string,
-    listAnswer: Record<string, string>;
+    listAnswer?: Record<string, string>;
     score?: number
     numberOfCorrectAnswers?: number,
-    numberOfQuestions?: number
+    numberOfQuestions?: number,
+    dueDate?: string,
+    startTime?: string,
+    submissionTime?: string
 }
 
 export type StartQuizDBObject = {
     quiz_id: string,
     username: string,
     start_time: string,
-    end_time: string
+    due_date: string
+}
+
+export type QuizError = {
+    error: string,
+    message?: string
 }

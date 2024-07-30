@@ -1,9 +1,9 @@
 import { uuid } from 'uuidv4';
 import { IDatabase } from "../common/database/types";
-import { buildInsertQuery, buildUpdateQuery } from "../common/database/utils";
+import { buildInsertQuery } from "../common/database/utils";
 import { convertKeysToCamelCase } from "../utils/converter";
 import { addMinutesInTheCurrentDate, getDateTimeWithFormat } from "../utils/date";
-import { IQuizRepository, StartQuizDBObject, StartQuizParams, SubmitQuizParams } from "./types";
+import { IQuizRepository, StartQuizDBObject, StartQuizParams, QuizParams } from "./types";
 
 export class QuizRepository implements IQuizRepository { 
     private db: IDatabase;
@@ -27,12 +27,27 @@ export class QuizRepository implements IQuizRepository {
         }
     }
 
-    findQuizSubmissionByUsernameAndQuizId = async(data: SubmitQuizParams) => {
+    findQuizSubmissionByUsernameAndQuizId = async(data: QuizParams) => {
         const queryString = `SELECT * FROM quiz_submissions WHERE username=$1 AND quiz_id=$2`;
         const values = [data.username, data.quizId];
         try {
             const result = await this.db.query(queryString, values);
             if (result.rowCount > 0) {
+                const rows = convertKeysToCamelCase(result.rows)
+                return rows[0];
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    findQuizSubmissionOrderByScore = async(data: QuizParams) => {
+        const queryString = `SELECT * FROM quiz_submissions WHERE quiz_id=$1 ORDER BY score DESC`;
+        const values = [data.quizId];
+        try {
+            const result = await this.db.query(queryString, values);
+            if (result?.rowCount > 0) {
                 const rows = convertKeysToCamelCase(result.rows)
                 return rows;
             }
@@ -50,21 +65,21 @@ export class QuizRepository implements IQuizRepository {
             quiz_id: quizId,
             username,
             start_time: startTimeFormatted,
-            end_time: endTimeFormatted
+            due_date: endTimeFormatted
         };
         const { queryString, values } = buildInsertQuery(startQuizDBObject, { table: this.quizSubmissionsTable })
         try {
             const result = await this.db.query(queryString, values);
             if (!result || result.rowCount === 0) {
-                return false;
+                return null;
             }
-            return true;
+            return result.rows[0];
         } catch (error) {
-            return false;
+            return null;
         }
     }
 
-    submitQuiz = async(data: SubmitQuizParams) => {
+    submitQuiz = async(data: QuizParams) => {
         const queryString = `UPDATE quiz_submissions SET list_answer=$1, score=$2, number_of_questions=$3, number_of_correct_answers=$4, submission_time=$5 WHERE username=$6 AND quiz_id=$7`
         const values = [data.listAnswer, data.score, data.numberOfQuestions, data.numberOfCorrectAnswers,  getDateTimeWithFormat(), data.username, data.quizId];
         try {
