@@ -36,8 +36,7 @@ export class QuizService implements IQuizService {
     startQuiz = async(startQuizServiceParams: StartQuizParams) => {
         const quizSubmissionResult = await this.quizRepository.findQuizSubmissionByUsernameAndQuizId(startQuizServiceParams);
         if (!quizSubmissionResult) {
-            const check = await this.quizRepository.startQuiz(startQuizServiceParams)
-            return check;
+            return await this.quizRepository.startQuiz(startQuizServiceParams)
         }
         return quizSubmissionResult;
     }

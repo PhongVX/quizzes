@@ -26,12 +26,14 @@
 ![Main Screen](./docs/MainScreen.png)
 User can enter username and quizId for joining the quiz.
 ### Quiz page
-![Quiz Screen](./docs/QuizScreen.png)
+![Quiz Screen](./docs/QuizScreen1.png)
+This is the result after user submit the quiz.
+![Quiz Screen](./docs/QuizScreen2.png)
 User can do the quiz and user can see the leader board in real time. After user submit the quiz user can see the result of the quiz and the leader board will be updated in real time for all users who are joining the quiz.
 ### Build For the Future:
 1. Scalability: For scalable we can choose the technology that support clustering.
 2. Performance: CDN and Caching Mechanism that will help the user access the system more faster. For the database we can apply Replica model for help reduce the workload in the database, we will have the Replica database for read-only and primary database for insert, Update and delete.
-3. Reliability: We need to make sure that our system has no down time, prepared for backup and recovery and make sure it works well during peak hours. We can use AWS or Azure they are provide multiple options on cloud.  
+3. Reliability: We need to make sure that our system has no down time, prepared for backup and recovery and make sure it works well during peak hours. We can use AWS or Azure they are providing multiple options on cloud.
 4. Maintainability: Using Typescript and clean architecture to make sure that the code will be easy to read and understand, writing the unit test to make sure the code change in the future won't impact the old features.  
 5. Monitoring and Observability: We can monitor the performance of the application from frontend to backend using Appdynamics. Using Logstash, Elasticsearch and Kibana for logging, searching and visualizing log data in real time.
 
