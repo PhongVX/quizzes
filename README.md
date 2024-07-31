@@ -1,7 +1,7 @@
 # Real-Time Vocabulary Quiz Coding Challenge
 ## System Design
 ### Architecture Diagram
-![Architecture Diagram](./docs/ArchitectureDiagram.png)
+![Architecture Diagram](./docs/ArchitectureDiagram1.png)
 ### Component Description
 1. Frontend: It's a frontend for user interaction, user can access the quiz by entering username and quizId, after submitting the quiz user can see the result and the leader board always up to date in real time whenever it has a user to submit their quiz.
 2. API Gateway: It's the gateway for handling requests from client to the system, responsible for load balancing, rate limiting, caching, authentication, authorization or forward the request to the services. (future feature).
