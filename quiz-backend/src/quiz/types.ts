@@ -7,12 +7,13 @@ export interface IQuizSocketHanlder {
     setQueue?: (queue: IMessageQueue) => void
     startQuiz: (socket: Socket) => void
     submitQuiz: (socket: Socket) => void
-    continueQuiz: (socket: Socket) => void
+    getLatestLeaderBoard: (socket: Socket) => void
 }
 
 export interface IQuizQueueHandler {
     consumeStartQuiz: () => void
     consumeSubmitQuiz: () => void
+    consumeGetLatestLeaderBoard: () => void
     setSocket: (socket: IWebSocket) => void
     setChannel: (channel: RabbitMQ.Channel) => void
 }

@@ -1,14 +1,20 @@
 import React, { useState } from 'react'
 import { UserOutlined } from '@ant-design/icons';
-import './styles.scss';
+
 import { useSocket } from '../../context/socket/hooks';
 import { SocketEvents } from '../../const';
+import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
+
+import './styles.scss';
 
 export const LeaderBoard = () => {
   const [ listLeader, setListLeader ] = useState([]);
   const { socket } = useSocket();
-
+  const { getDataFromQueryString } = useUrlSearchParams();
+  const username = getDataFromQueryString('username');
+  const quizId = getDataFromQueryString('quizId');
   React.useEffect(() => {
+    socket?.emit(SocketEvents.GetLatestLeaderBoard, { username, quizId });
     socket?.on(SocketEvents.LeaderBoardUpdated, (msg) => {
        setListLeader(msg);
     });
@@ -23,7 +29,6 @@ export const LeaderBoard = () => {
         )
     })
   }
-  console.log(listLeader)
   return (
     <div>
         <h2>Leader board</h2> <br/> 

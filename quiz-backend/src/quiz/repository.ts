@@ -73,7 +73,8 @@ export class QuizRepository implements IQuizRepository {
             if (!result || result.rowCount === 0) {
                 return null;
             }
-            return result.rows[0];
+            const rows = convertKeysToCamelCase(result.rows[0]);
+            return rows;
         } catch (error) {
             return null;
         }
