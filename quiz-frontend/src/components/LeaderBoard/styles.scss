@@ -3,6 +3,7 @@
     ul {
         list-style-type: none; 
         display: flex;
+        overflow-x: scroll;
         li {
             margin-right: 10px;
         }

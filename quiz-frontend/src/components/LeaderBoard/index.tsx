@@ -3,16 +3,16 @@ import { UserOutlined } from '@ant-design/icons';
 
 import { useSocket } from '../../context/socket/hooks';
 import { SocketEvents } from '../../const';
-import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
 
 import './styles.scss';
+import { useQuizDataFromUrl } from '../../hooks/useQuizDataFromUrl';
 
 export const LeaderBoard = () => {
   const [ listLeader, setListLeader ] = useState([]);
   const { socket } = useSocket();
-  const { getDataFromQueryString } = useUrlSearchParams();
-  const username = getDataFromQueryString('username');
-  const quizId = getDataFromQueryString('quizId');
+  const { getQuizInfoFromUrl } = useQuizDataFromUrl();
+  const { username, quizId } = getQuizInfoFromUrl();
+
   React.useEffect(() => {
     socket?.emit(SocketEvents.GetLatestLeaderBoard, { username, quizId });
     socket?.on(SocketEvents.LeaderBoardUpdated, (msg) => {
