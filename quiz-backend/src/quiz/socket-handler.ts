@@ -22,12 +22,10 @@ export class QuizSocketHanlder implements IQuizSocketHanlder {
         });
     }
 
-    continueQuiz = (socket: Socket) => {
-        socket.on(SocketEvents.ContinueQuiz, (msg: StartQuizParams) => {
-            socket.join(`${msg.quizId}_${msg.username}`);
-            socket.join(`${msg.quizId}`);
+    getLatestLeaderBoard = (socket: Socket) => {
+        socket.on(SocketEvents.GetLatestLeaderBoard, (msg: QuizParams) => {
             if (this.queue) {
-                this.queue.sendMessageToQueue(QueueEvents.StartQuiz, JSON.stringify(msg));
+                this.queue.sendMessageToQueue(QueueEvents.GetLatestLeaderBoard, JSON.stringify(msg));
             } 
         });
     }

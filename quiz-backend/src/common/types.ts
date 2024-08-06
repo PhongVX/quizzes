@@ -7,10 +7,10 @@ export enum HttpMethod {
 }
 
 export enum SocketEvents {
+    GetLatestLeaderBoard = 'get-latest-leader-board',
     LeaderBoardUpdated = 'leader-board-updated',
     StartQuiz = 'start-quiz',
     StartQuizConfirmed = 'start-quiz-confirmed',
-    ContinueQuiz = 'continue-quiz',
     SubmitQuiz = 'submit-quiz',
     SubmitQuizConfirmed = 'submit-quiz-confirmed',
     DisConnect = 'disconnect'
@@ -19,5 +19,5 @@ export enum SocketEvents {
 export enum QueueEvents {
     StartQuiz = 'start-quiz',
     SubmitQuiz = 'submit-quiz',
-    ContinueQuiz = 'continue-quiz'
+    GetLatestLeaderBoard = 'get-latest-leader-board',
 }

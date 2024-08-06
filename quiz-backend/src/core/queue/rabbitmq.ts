@@ -55,5 +55,6 @@ export class RabbitMQImpl implements IMessageQueue {
     consumeMessage = () => {
         this.quizQueueHandler.consumeStartQuiz();
         this.quizQueueHandler.consumeSubmitQuiz();
+        this.quizQueueHandler.consumeGetLatestLeaderBoard();
     }
 }

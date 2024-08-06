@@ -39,7 +39,7 @@ export class SocketIOImpl implements IWebSocket {
             });
             this.quizSocketHandler.startQuiz(socket);
             this.quizSocketHandler.submitQuiz(socket);
-            this.quizSocketHandler.continueQuiz(socket);
+            this.quizSocketHandler.getLatestLeaderBoard(socket);
         });
     }
 
