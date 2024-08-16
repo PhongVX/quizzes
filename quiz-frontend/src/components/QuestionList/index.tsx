@@ -7,9 +7,9 @@ import { Question } from '../Question'
 import './styles.scss';
 import { useDataFromBrowserStorage } from '../../hooks/useDataFromBrowserStorage';
 import { LocalStorageKey, SocketEvents } from '../../const';
-import { useUrlSearchParams } from '../../hooks/useUrlSearchParams';
 import { useSocket } from '../../context/socket/hooks';
 import { useQuizTimer } from './hooks';
+import { useQuizDataFromUrl } from '../../hooks/useQuizDataFromUrl';
 
 type QuestionListProps = {
   listQuestion: any[],
@@ -21,14 +21,14 @@ export const QuestionList = ({ listQuestion, dueDate }: QuestionListProps) => {
   const [ currentQuestion, setCurrentQuestion ] = useState(0);
   const canGoNext = currentQuestion < listQuestion.length - 1;
   const canBackToPrevious = currentQuestion > 0;
-  const { getDataFromQueryString } = useUrlSearchParams();
   const { getDataFromStorage } = useDataFromBrowserStorage();
+  const { getQuizInfoFromUrl } = useQuizDataFromUrl();
+  const { username, quizId } = getQuizInfoFromUrl();
+
   const { socket } = useSocket();
 
   const handleSubmitQuiz = () => {
     let userAnswer = getDataFromStorage(LocalStorageKey.UserAnswer);
-    const username = getDataFromQueryString('username');
-    const quizId = getDataFromQueryString('quizId');
     socket?.emit(SocketEvents.SubmitQuiz, {
       username,
       quizId,
@@ -54,7 +54,7 @@ export const QuestionList = ({ listQuestion, dueDate }: QuestionListProps) => {
     <div className='question-list-wrapper'>
         <Button type='primary' id='submit-quiz-button' onClick={handleSubmitQuiz}>Submit</Button>
         <br/>
-        <h1>Simple quiz</h1>
+        <h2>Simple quiz</h2> <br/>
         <p>
         <ClockCircleOutlined /> Time left: { getTimeLeftText() }
       </p>

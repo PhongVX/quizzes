@@ -10,6 +10,7 @@ import { ResultSumary } from '../../components/ResultSumary';
 import { LeaderBoard } from '../../components/LeaderBoard';
 
 import './styles.scss';
+import { useQuizDataFromUrl } from '../../hooks/useQuizDataFromUrl';
 
 export const Quiz = () => {
     const { 
@@ -21,7 +22,9 @@ export const Quiz = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { clearStorage  } = useDataFromBrowserStorage();
-
+    const { getQuizInfoFromUrl } = useQuizDataFromUrl();
+    const { username } = getQuizInfoFromUrl();
+    
     React.useEffect(() => {
         if (!location.state) {
             navigate(`${Path.Main}`);
@@ -66,6 +69,8 @@ export const Quiz = () => {
 
     return (
         <div className='quiz-page'>
+            <h1>Welcome, {username}</h1>
+            <br />
             <LeaderBoard />
             {
                 QuizContainer

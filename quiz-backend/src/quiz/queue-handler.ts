@@ -15,6 +15,25 @@ export class QuizQueueHandler implements IQuizQueueHandler{
         this.quizService = quizService;
     }
 
+    consumeGetLatestLeaderBoard = () => {
+        try {
+            if (!this.channel) {
+              throw new Error('Channel is not initialized');
+            }
+            this.channel.assertQueue(QueueEvents.GetLatestLeaderBoard, { durable: true });
+            this.channel?.consume(QueueEvents.GetLatestLeaderBoard, async(msg) => {
+                if (msg !== null) {
+                    const message = msg.content.toString();
+                    const submitQuizParams = JSON.parse(message) as QuizParams;
+                    this.quizService.updateLeaderBoardToClient(this.socket, submitQuizParams);
+                    this.channel?.ack(msg);
+                }
+            });  
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
     setSocket = (socket: IWebSocket) => {
         this.socket = socket;
     }
@@ -36,7 +55,6 @@ export class QuizQueueHandler implements IQuizQueueHandler{
                     const startQuizResult = await this.quizService.startQuiz(startQuizMessage);
                     if (startQuizResult) {
                         this.quizService.startQuizConfirmed(this.socket, startQuizResult);
-                        this.quizService.updateLeaderBoardToClient(this.socket, startQuizMessage);
                     } else {
                         this.quizService.startQuizConfirmed(this.socket, startQuizMessage, {
                             error: SocketError.InvalidInput
@@ -72,4 +90,5 @@ export class QuizQueueHandler implements IQuizQueueHandler{
             console.log(err);
         }
     }
+
 }
